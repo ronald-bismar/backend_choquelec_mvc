@@ -6,7 +6,7 @@ class BD
 
     function __construct()
     {
-        $this->conexion = new mysqli('localhost', 'root', '', 'bd_choquelec_n');
+        $this->conexion = new mysqli('bpd8jelghf6igtd6gi28-mysql.services.clever-cloud.com', 'uc5kajgajjlmiubh', '95sQKgUZZK68X0LcjM9d', 'bpd8jelghf6igtd6gi28');
 
         if ($this->conexion->connect_error) {
             die("Conexión fallida: " . $this->conexion->connect_error);
