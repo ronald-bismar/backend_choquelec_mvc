@@ -41,10 +41,11 @@ class BD
         $consulta = "SELECT $campos FROM $this->nombreTabla $condiciones $ordenamiento $limite";
         $respuesta = $this->conexion->query($consulta);
 
+        $datos = [];
+        
         if (!$respuesta) {
             echo("Error al seleccionar: " . $this->conexion->error);
         }else {
-            $datos = [];
         while ($fila = $respuesta->fetch_assoc()) {
             $datos[] = $fila;
         }
@@ -54,5 +55,51 @@ class BD
         return $datos;
     }
 
-    // Métodos para modificar y eliminar...
+    function actualizar($valoresEntrada, $condicion)
+    {
+        $pares = [];
+        // Construir pares campo=valor
+        foreach ($valoresEntrada as $campo => $valor) {
+            if($valor != ''){$pares[] = "$campo='$valor'";}
+        }
+    
+        // Unir los pares con comas
+        $camposValores = implode(', ', $pares);
+        
+        $set = "SET $camposValores";
+        $where = "WHERE $condicion";
+    
+        $consulta = $pares != [] ? "UPDATE $this->nombreTabla $set $where" : '';
+    
+        echo $consulta;
+        if($consulta != ''){
+            $respuesta = $this->conexion->query($consulta);
+        }
+        
+        if (!$respuesta) {
+            die("Error al actualizar: " . $this->conexion->error);
+        } else {
+            echo "Actualizacion exitosa";
+        }
+    
+        return $respuesta;
+    }
+    
+
+    function eliminar($condiciones = '')
+    {
+        $condiciones = $condiciones ? "WHERE $condiciones" : '';
+
+        $consulta = "DELETE FROM $this->nombreTabla $condiciones";
+        $respuesta = $this->conexion->query($consulta);
+        
+        if (!$respuesta) {
+            die("Error al eliminar: " . $this->conexion->error);
+        }else {
+            echo 'Eliminacion exitosa';
+        }
+
+        
+        return $respuesta;
+    }
 }

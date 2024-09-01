@@ -1,7 +1,5 @@
 <?php
 class Proyecto {
-    private $conn;
-    private $table_name = "proyecto";
 
     public $idProyecto;
     public $nombre;
@@ -10,9 +8,10 @@ class Proyecto {
     public $fechaRegistro;
     public $idSupervisor;
     public $idResidenteDeObra;
+    public $activo;
 
     // Constructor con la conexión a la base de datos
-    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = 0) {
+    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = 0, $activo) {
         $this->idProyecto = $idProyecto;
         $this->nombre = $nombre;
         $this->ubicacion = $ubicacion;
@@ -20,6 +19,7 @@ class Proyecto {
         $this->fechaRegistro = $fechaRegistro;
         $this->idSupervisor = $idSupervisor;
         $this->idResidenteDeObra = $idResidenteDeObra;
+        $this->activo = $activo;
     }
 
     public function toArray() {
@@ -30,6 +30,7 @@ class Proyecto {
             'fechaRegistro' => $this->fechaRegistro,
             'idSupervisor' => $this->idSupervisor,
             'idResidenteDeObra' => $this->idResidenteDeObra,
+            'activo' => $this->activo,
         ];
     
         // Condicionalmente agregar 'idTrabajador'
@@ -41,14 +42,15 @@ class Proyecto {
     }
     
     public static function fromArray($data) {
-        return new Trabajador(
+        return new Proyecto(
             $data['nombre'],
-            $data['apellido'],
-            $data['contrasenia'],
-            $data['tipoDeTrabajador'],
-            $data['cedulaDeIdentidad'],
-            $data['activo'] == 1,
-            $data['idTrabajador']
+            $data['ubicacion'],
+            $data['estaCompleta'],
+            $data['fechaRegistro'],
+            $data['idSupervisor'],
+            $data['idResidenteDeObra'] == 1,
+            $data['idTrabajador'],
+            $data['activo']
         );
     }
 }
