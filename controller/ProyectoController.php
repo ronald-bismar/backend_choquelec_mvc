@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 require_once "model/entities/Trabajador.php";
 require_once "model/TrabajadorModel.php";
 
@@ -54,4 +54,4 @@ class TrabajadorController
     }
 
     // Otros métodos como listar, modificar, eliminar...
-}
+} -->

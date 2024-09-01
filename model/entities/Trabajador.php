@@ -8,7 +8,7 @@ class Trabajador {
     public $tipoDeTrabajador;
     public $activo;
 
-    public function __construct($nombre, $apellido, $contrasenia, $tipoDeTrabajador, $cedulaDeIdentidad, $activo = true, $idTrabajador = null) {
+    public function __construct($nombre = '', $apellido = '', $contrasenia = '', $tipoDeTrabajador = '', $cedulaDeIdentidad = '', $activo = true, $idTrabajador = null) {
         $this->idTrabajador = $idTrabajador;
         $this->nombre = $nombre;
         $this->apellido = $apellido;

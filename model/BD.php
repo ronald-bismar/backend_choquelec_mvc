@@ -21,13 +21,12 @@ class BD
 
         $consulta = "INSERT INTO $this->nombreTabla ($campos) VALUES($valores)";
 
-        ECHO $consulta;
         $respuesta = $this->conexion->query($consulta);
 
         if (!$respuesta) {
             die("Error al insertar: " . $this->conexion->error);
         }else {
-            echo "Registro insertado correctamente";
+            echo "Registro exitoso";
         }
 
         return $respuesta;
@@ -43,13 +42,15 @@ class BD
         $respuesta = $this->conexion->query($consulta);
 
         if (!$respuesta) {
-            die("Error al seleccionar: " . $this->conexion->error);
-        }
-
-        $datos = [];
+            echo("Error al seleccionar: " . $this->conexion->error);
+        }else {
+            $datos = [];
         while ($fila = $respuesta->fetch_assoc()) {
             $datos[] = $fila;
         }
+        }
+
+        
         return $datos;
     }
 
