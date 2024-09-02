@@ -11,7 +11,7 @@ class Proyecto {
     public $activo;
 
     // Constructor con la conexión a la base de datos
-    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = 0, $activo) {
+    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = null, $activo) {
         $this->idProyecto = $idProyecto;
         $this->nombre = $nombre;
         $this->ubicacion = $ubicacion;
@@ -33,10 +33,7 @@ class Proyecto {
             'activo' => $this->activo,
         ];
     
-        // Condicionalmente agregar 'idTrabajador'
-        if ($this->idProyecto !== null) {
-            $array['idProyecto'] = $this->idProyecto;
-        }
+       
     
         return $array;
     }

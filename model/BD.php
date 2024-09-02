@@ -20,7 +20,7 @@ class BD
         $valores = "'" . implode("','", array_values($valoresEntrada)) . "'";
 
         $consulta = "INSERT INTO $this->nombreTabla ($campos) VALUES($valores)";
-
+        // echo $consulta;
         $respuesta = $this->conexion->query($consulta);
 
         if (!$respuesta) {
@@ -32,13 +32,16 @@ class BD
         return $respuesta;
     }
 
-    function seleccionar($campos = '*', $condiciones = '', $ordenamiento = '', $limite = '')
+    function seleccionar($campos = '*',$innerjoin = '' , $condiciones = '', $ordenamiento = '', $limite = '')
     {
         $condiciones = $condiciones ? "WHERE $condiciones" : '';
         $ordenamiento = $ordenamiento ? "ORDER BY $ordenamiento" : '';
         $limite = $limite ? "LIMIT $limite" : '';
 
-        $consulta = "SELECT $campos FROM $this->nombreTabla $condiciones $ordenamiento $limite";
+        $consulta = "SELECT $campos FROM $this->nombreTabla $innerjoin $condiciones $ordenamiento $limite";
+
+        // echo "$consulta <br><br>";
+
         $respuesta = $this->conexion->query($consulta);
 
         $datos = [];

@@ -4,4 +4,3 @@ require_once "BD.php";
     {
         protected $nombreTabla = 'proyecto';
     }
-?>
