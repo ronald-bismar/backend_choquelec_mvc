@@ -11,7 +11,7 @@ class Proyecto {
     public $activo;
 
     // Constructor con la conexión a la base de datos
-    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = null, $activo) {
+    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = null, $activo = '1') {
         $this->idProyecto = $idProyecto;
         $this->nombre = $nombre;
         $this->ubicacion = $ubicacion;

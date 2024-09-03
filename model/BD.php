@@ -54,7 +54,6 @@ class BD
         }
         }
 
-        
         return $datos;
     }
 

@@ -139,6 +139,28 @@ class ProyectoController
     }
     }
 
+    public function obtenerEstructurasParaListar(){
+        $idProyecto = $_POST['idProyecto']?? '4';
+        $idProyecto = $_POST['idProyecto']?? '4';
+
+        $campos = "idEstructura, 
+                    nombre,  
+                    estaCompleta";
+
+                  
+            $condicion = "idProyecto = '$idProyecto'";
+            $estructuras = $this->estructuraModel->seleccionar(campos: $campos, condiciones: $condicion);
+
+    if ($estructuras) {
+        header('Content-Type: application/json');
+        echo json_encode($estructuras);
+    } else {
+        // Si no hay resultados, devolver null como JSON
+        header('Content-Type: application/json');
+        echo json_encode(null);
+    }
+    }
+
     public function obtenerEstructurasCompletas()
     {
         $idProyecto = $_POST['idProyecto']?? '4';
