@@ -146,8 +146,6 @@ class ProyectoController
         $campos = "idEstructura, 
                     nombre,  
                     estaCompleta";
-
-                  
             $condicion = "idProyecto = '$idProyecto'";
             $estructuras = $this->estructuraModel->seleccionar(campos: $campos, condiciones: $condicion);
 
@@ -170,16 +168,25 @@ class ProyectoController
              e.fechaRegistro, 
              e.estaCompleta, 
              e.idOperadorAsignado,
-             e.idProyecto, 
+             e.idProyecto,
+             i.idImagen AS idImagenEstructura,
+             i.tipoImagen AS tipoImagenEstructura,
+             i.fechaCaptura AS fechaCapturaImagenEstructura,
              i.urlImagen AS urlImagenEstructura, 
-             ig.urlImagen AS urlImagenGPS, 
+             ig.idImagen AS idImagenGPS,
+             ig.tipoImagen AS tipoImagenGPS,
+             ig.fechaCaptura AS fechaCapturaImagenGPS,
+             ig.urlImagen AS urlImagenGPS,
+             cu.idCoordenadaUTM,
              cu.coordenadaX, 
              cu.coordenadaY, 
              cu.zonaCartografica, 
+             lat.id AS idLatitudDMS, 
              lat.grados AS latitudGrados, 
              lat.minutos AS latitudMinutos, 
              lat.segundos AS latitudSegundos, 
              lat.hemisferio AS latitudHemisferio, 
+             lon.id AS idLongitudDMS, 
              lon.grados AS longitudGrados, 
              lon.minutos AS longitudMinutos, 
              lon.segundos AS longitudSegundos, 

@@ -73,7 +73,6 @@ class BD
     
         $consulta = $pares != [] ? "UPDATE $this->nombreTabla $set $where" : '';
     
-        echo $consulta;
         if($consulta != ''){
             $respuesta = $this->conexion->query($consulta);
         }

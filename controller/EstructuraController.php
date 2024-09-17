@@ -52,37 +52,85 @@ class EstructuraController
     public function obtenerEstructura(){
         $idEstructura = $_POST['idEstructura']?? '1';
 
-        $respuesta = $this->estructuraModel->seleccionar(condiciones: "idEstructura = '$idEstructura'");
+        $campos = "e.idEstructura, 
+             e.nombre, 
+             e.fechaRegistro, 
+             e.estaCompleta, 
+             e.idOperadorAsignado,
+             e.idProyecto, 
+             i.urlImagen AS urlImagenEstructura, 
+             ig.urlImagen AS urlImagenGPS, 
+             cu.coordenadaX, 
+             cu.coordenadaY, 
+             cu.zonaCartografica, 
+             lat.grados AS latitudGrados, 
+             lat.minutos AS latitudMinutos, 
+             lat.segundos AS latitudSegundos, 
+             lat.hemisferio AS latitudHemisferio, 
+             lon.grados AS longitudGrados, 
+             lon.minutos AS longitudMinutos, 
+             lon.segundos AS longitudSegundos, 
+             lon.hemisferio AS longitudHemisferio";
+        
+             $innerjoins = "e
+              INNER JOIN 
+                  imagen i ON e.imagenEstructura = i.idImagen
+              LEFT JOIN 
+                  imagen ig ON e.imagenGPS = ig.idImagen
+              INNER JOIN 
+                  coordenadautm cu ON e.ubicacionUTM = cu.idCoordenadaUTM
+              INNER JOIN 
+                  coordenadasdms cosdms ON cosdms.idCoordenadasDMS = e.ubicacionDMS
+              INNER JOIN 
+                  coordenadadms lat ON cosdms.latitud_id = lat.id
+              INNER JOIN 
+                  coordenadadms lon ON cosdms.longitud_id = lon.id";
 
-    if ($respuesta && !empty($respuesta)) {
+        $condicion = "idEstructura = '$idEstructura'";
+
+        $estructuras = $this->estructuraModel->seleccionar(campos: $campos, innerjoin: $innerjoins, condiciones: $condicion);
+
+    if ($estructuras && !empty($estructuras)) {
         header('Content-Type: application/json');
-        echo json_encode($respuesta[0]);
+        echo json_encode($estructuras[0]);
     } else {
         // Si no hay resultados, devolver null como JSON
         header('Content-Type: application/json');
         echo json_encode(null);
     }
     }
+
     public function actualizar()
     {
+        // Si se envían como JSON
+        $jsonInput = file_get_contents('php://input');
+        $data = json_decode($jsonInput, true);
+    
+        // Si los datos se envían como formulario (application/x-www-form-urlencoded)
         $estructura = new Estructura(
-            $_POST['idEstructura'],
-            $_POST['nombre'],
-            $_POST['imagenEstructura'],
-            $_POST['imagenGPS'],
-            $_POST['ubicacionUTM'],
-            $_POST['ubicacionDMS'],
-            $_POST['estaCompleta'], 
-            $_POST['fechaRegistro'], 
-            $_POST['idProyecto'], 
-            $_POST['idOperadorAsignado'], 
+            $data['idEstructura'],
+            $data['nombre'],
+            $data['imagenEstructura']['idImagen'],
+            $data['imagenGPS']['idImagen'],
+            $data['ubicacionUTM']['idCoordenadaUTM'],
+            $data['ubicacionDMS']['idCoordenadasDMS'],
+            $data['estaCompleta'], 
+            $data['fechaRegistro'], 
+            $data['idProyecto'], 
+            $data['idOperadorAsignado']
         );
-
+    
+        // Convertir a array para la base de datos
         $datosEnviar = $estructura->toArray();
-        $estructuras = $this->estructuraModel->actualizar($datosEnviar,condicion: "idEstructura = '{$estructura->idEstructura}'");
-
+        var_dump($datosEnviar);
+    
+        // Actualizar en la base de datos
+        $estructuras = $this->estructuraModel->actualizar($datosEnviar, condicion: "idEstructura = '{$estructura->idEstructura}'");
+    
         return $estructuras ? "Registro actualizado correctamente" : "Error al actualizar el registro.";
     }
+    
+    
     public function eliminar()
     {
         $idEstructura = $_POST['idEstructura'] ?? '';
