@@ -15,7 +15,7 @@ class ImagenController{
     {
         $imagen = new Imagen(
            urlImagen: $_POST['urlImagen'] ?? '',
-           tipoImagen: $_POST['tipoImagen'] ?? '',
+           tipoImagen: $_POST['tipoImagen'] ?? 'estructura',
            fechaCaptura : $_POST['fechaCaptura '] ?? '',
            activo : $_POST['activo '] ?? '1',
           

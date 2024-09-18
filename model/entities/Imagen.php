@@ -8,7 +8,7 @@ class Imagen {
     public $activo;
 
     // Constructor con la conexión a la base de datos
-    function __construct($idImagen = null, $urlImagen = '', $tipoImagen  = '', $fechaCaptura  = '',$activo  = '' ) {
+    function __construct($idImagen = null, $urlImagen = '', $tipoImagen  = 'estructura', $fechaCaptura  = '',$activo  = '1' ) {
         $this->idImagen = $idImagen;
         $this->urlImagen = $urlImagen;
         $this->tipoImagen  = $tipoImagen ;
@@ -18,9 +18,9 @@ class Imagen {
 
     public function toArray() {
         $array = [
-            'urlImagen ' => $this->urlImagen ,
-            'tipoImagen ' => $this->tipoImagen ,
-            'fechaCaptura ' => $this->fechaCaptura ,
+            'urlImagen' => $this->urlImagen ,
+            'tipoImagen' => $this->tipoImagen ,
+            'fechaCaptura' => $this->fechaCaptura ,
             'activo' => $this->activo,
         ];
     
@@ -35,9 +35,9 @@ class Imagen {
     public static function fromArray($data) {
         return new Imagen(
             $data['idImagen'],
-            $data['urlImagen '],
-            $data['tipoImagen '],
-            $data['fechaCaptura '],
+            $data['urlImagen'],
+            $data['tipoImagen'],
+            $data['fechaCaptura'],
             $data['activo'],
         );
     }

@@ -1,4 +1,5 @@
 <?php
+
 class CoordenadasDMS {
 
     public $idCoordenadasDMS;
@@ -14,8 +15,8 @@ class CoordenadasDMS {
 
     public function toArray() {
         $array = [
-            'idLatitudDMS ' => $this->idLatitudDMS ,
-            'idLongitudDMS ' => $this->idLongitudDMS ,
+            'latitud_id' => $this->idLatitudDMS ,
+            'longitud_id' => $this->idLongitudDMS ,
         ];
     
         // Condicionalmente agregar 'idTrabajador'
@@ -29,8 +30,8 @@ class CoordenadasDMS {
     public static function fromArray($data) {
         return new CoordenadasDMS(
             $data['idCoordenadasDMS'],
-            $data['idLatitudDMS '],
-            $data['idLongitudDMS '],
+            $data['latitud_id'],
+            $data['longitud_id'],
         );
     }
 }

@@ -2,36 +2,95 @@
 require_once "model/entities/Estructura.php";
 require_once "model/EstructuraModel.php";
 require_once "model/entities/Imagen.php";
+require_once "model/ImagenModel.php";
 require_once "controller/ImagenController.php";
+require_once "model/entities/CoordenadaUTM.php";
+require_once "model/CoordenadaUTMModel.php";
+require_once "controller/CoordenadaUTMController.php";
+require_once "model/entities/CoordenadasDMS.php";
+require_once "model/CoordenadasDMSModel.php";
+require_once "controller/CoordenadasDMSController.php";
+require_once "model/entities/CoordenadaDMS.php";
+require_once "model/CoordenadaDMSModel.php";
+require_once "controller/CoordenadaDMSController.php";
 
 class EstructuraController
 {
     private EstructuraModel $estructuraModel;
+    private ImagenModel $imagenModel;
+    private CoordenadaUTMModel $coordenadaUTMModel;
+    private CoordenadasDMSModel $coordenadasDMSModel;
+    private CoordenadaDMSModel $coordenadaDMSModel;
 
     public function __construct()
     {
         $this->estructuraModel = new EstructuraModel();
+        $this->imagenModel = new ImagenModel();
+        $this->coordenadaUTMModel = new CoordenadaUTMModel();
+        $this->coordenadasDMSModel = new CoordenadasDMSModel();
+        $this->coordenadaDMSModel = new CoordenadaDMSModel();
     }
 
     public function guardar()
     {
-        $estructura = new Estructura(
-           nombre: $_POST['nombre'] ?? '',
-           imagenEstructura: $_POST['imagenEstructura'] ?? '2',
-           imagenGPS: $_POST['imagenGPS'] ?? '2',
-           ubicacionUTM: $_POST['ubicacionUTM'] ?? '2',
-           ubicacionDMS: $_POST['ubicacionDMS'] ?? '3',
-           estaCompleta: $_POST['estaCompleta'] ?? '0', 
-           fechaRegistro: $_POST['fechaRegistro'] ?? date("Y-m-d H:i:s"), 
-          idEstructura:  $_POST['idEstructura'] ?? '1', 
-          idProyecto:  $_POST['idProyecto'] ?? '1', 
-           idOperadorAsignado: $_POST['idOperadorAsignado']?? '6', 
-        );
+        $jsonInput = file_get_contents('php://input');
+        $data = json_decode($jsonInput, true); 
 
-        $datosEnviar = $estructura->toArray();
-        $estructuras = $this->estructuraModel->insertar($datosEnviar);
+        $imagenEstructura = Imagen::fromArray($data['imagenEstructura']);
+        $imagenGPS = Imagen::fromArray($data['imagenGPS']);
+        $ubicacionUTM = CoordenadaUTM::fromArray($data['ubicacionUTM']);
+        $ubicacionesDMS = CoordenadasDMS::fromArray($data['ubicacionDMS']);
+        $ubicacionDMSLat = CoordenadaDMS::fromArray($data['ubicacionDMS']['latitud']);
+        $ubicacionDMSLon = CoordenadaDMS::fromArray($data['ubicacionDMS']['longitud']);
 
-        return $estructuras ? "Registro insertado correctamente" : "Error al insertar el registro.";
+        $responseImagenEstructura = $this->imagenModel->insertar($imagenEstructura->toArray());
+        $responseImagenGPS = $this->imagenModel->insertar($imagenGPS->toArray());
+        $responseUbicacionUTM = $this->coordenadaUTMModel->insertar($ubicacionUTM->toArray());
+
+        $responseUbicacionDMSLat = $this->coordenadaDMSModel->insertar($ubicacionDMSLat->toArray());
+        $responseUbicacionDMSLon = $this->coordenadaDMSModel->insertar($ubicacionDMSLon->toArray());
+
+
+
+        if($responseImagenEstructura && $responseImagenGPS && $responseUbicacionUTM && $responseUbicacionDMSLat && $responseUbicacionDMSLon){
+            
+            $idLatitud = $this->coordenadaDMSModel->seleccionar("id", condiciones:"grados = '{$ubicacionDMSLat->grados}' AND minutos = '{$ubicacionDMSLat->minutos}' AND segundos = '{$ubicacionDMSLat->segundos}'");
+            $idLongitud = $this->coordenadaDMSModel->seleccionar("id", condiciones:"grados = '{$ubicacionDMSLon->grados}' AND minutos = '{$ubicacionDMSLon->minutos}' AND segundos = '{$ubicacionDMSLon->segundos}'");
+
+            $ubicacionesDMS->idLatitudDMS = $idLatitud;
+            $ubicacionesDMS->idLongitudDMS = $idLongitud;
+
+        $responseUbicacionesDMS = $this->coordenadasDMSModel->insertar($ubicacionesDMS->toArray());
+
+
+            $idImagenEstructura = $this->imagenModel->seleccionar("idImagen", condiciones:"urlImagen = '{$imagenEstructura->idImagen}'");
+            $idImagenGPS = $this->imagenModel->seleccionar("idImagen", condiciones:"urlImagen = '{$imagenGPS->idImagen}'");
+            $idUbicacionUTM = $this->coordenadaUTMModel->seleccionar("idCoordenadaUTM", condiciones:"coordenadaX = '{$ubicacionUTM->coordenadaX}' AND coordenadaY = '{$ubicacionUTM->coordenadaY}'");
+            $idUbicacionDMS= $this->coordenadaDMSModel->seleccionar("idCoordenadasDMS", condiciones:"latitud_id = '{$ubicacionesDMS->idLatitudDMS}' AND longitud_id = '{$ubicacionesDMS->idLongitudDMS}'");
+            $estructura = new Estructura(
+                $data['idEstructura'],
+                $data['nombre'],
+                $data['imagenEstructura']['idImagen'],
+                $data['imagenGPS']['idImagen'],
+                $data['ubicacionUTM']['idCoordenadaUTM'],
+                $data['ubicacionDMS']['idCoordenadasDMS'],
+                $data['estaCompleta'], 
+                $data['fechaRegistro'], 
+                $data['idProyecto'], 
+                $data['idOperadorAsignado']
+            );
+    
+            // Convertir a array para la base de datos
+            $datosEnviar = $estructura->toArray();
+            // var_dump($datosEnviar);
+        
+            // Actualizar en la base de datos
+            $estructuras = $this->estructuraModel->actualizar($datosEnviar, condicion: "idEstructura = '{$estructura->idEstructura}'");
+        
+            return $estructuras ? "Registro actualizado correctamente" : "Error al actualizar el registro.";
+        }else {
+            echo "Ocurrio un error";
+        }
     }
     
     public function buscarPor()
@@ -122,7 +181,19 @@ class EstructuraController
             $data['idOperadorAsignado']
         );
 
-        $imagenEstructura = new Imagen($data['imagenEstructura']->fromArray());
+        $imagenEstructura = Imagen::fromArray($data['imagenEstructura']);
+        $imagenGPS = Imagen::fromArray($data['imagenGPS']);
+        $ubicacionUTM = CoordenadaUTM::fromArray($data['ubicacionUTM']);
+        $ubicacionesDMS = CoordenadasDMS::fromArray($data['ubicacionDMS']);
+        $ubicacionDMSLat = CoordenadaDMS::fromArray($data['ubicacionDMS']['latitud']);
+        $ubicacionDMSLon = CoordenadaDMS::fromArray($data['ubicacionDMS']['longitud']);
+
+        $responseImagenEstructura = $this->imagenModel->actualizar($imagenEstructura->toArray(), condicion:"idImagen = {$imagenEstructura->idImagen}");
+        $responseImagenGPS = $this->imagenModel->actualizar($imagenGPS->toArray(), condicion:"idImagen = {$imagenGPS->idImagen}");
+        $responseUbicacionUTM = $this->coordenadaUTMModel->actualizar($ubicacionUTM->toArray(), condicion:"idCoordenadaUTM = {$ubicacionUTM->idCoordenadaUTM}");
+        // $responseUbicacionesDMS = $this->coordenadasDMSModel->actualizar($ubicacionesDMS->toArray(), condicion:"idCoordenadasDMS = {$ubicacionesDMS->idCoordenadasDMS}");
+        $responseUbicacionesDMSLat = $this->coordenadaDMSModel->actualizar($ubicacionDMSLat->toArray(), condicion:"id = {$ubicacionDMSLat->id}");
+        $responseUbicacionesDMSLon = $this->coordenadaDMSModel->actualizar($ubicacionDMSLon->toArray(), condicion:"id = {$ubicacionDMSLon->id}");
 
         // Convertir a array para la base de datos
         $datosEnviar = $estructura->toArray();
