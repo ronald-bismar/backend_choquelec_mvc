@@ -1,6 +1,8 @@
 <?php
 require_once "model/entities/Estructura.php";
 require_once "model/EstructuraModel.php";
+require_once "model/entities/Imagen.php";
+require_once "controller/ImagenController.php";
 
 class EstructuraController
 {
@@ -119,10 +121,12 @@ class EstructuraController
             $data['idProyecto'], 
             $data['idOperadorAsignado']
         );
-    
+
+        $imagenEstructura = new Imagen($data['imagenEstructura']->fromArray());
+
         // Convertir a array para la base de datos
         $datosEnviar = $estructura->toArray();
-        var_dump($datosEnviar);
+        // var_dump($datosEnviar);
     
         // Actualizar en la base de datos
         $estructuras = $this->estructuraModel->actualizar($datosEnviar, condicion: "idEstructura = '{$estructura->idEstructura}'");

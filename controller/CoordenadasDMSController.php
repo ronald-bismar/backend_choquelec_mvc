@@ -1,38 +1,35 @@
 <?php
-require_once "model/entities/Imagen.php";
-require_once "model/ImagenModel.php";
+require_once "model/entities/CoordenadasDMS.php";
+require_once "model/CoordenadasDMSModel.php";
 
-class ImagenController{
+class CoordenadasDMSController{
 
-   private ImagenModel $imagenModel;
+   private CoordenadasDMSModel $coordenadasDMSModel;
 
     public function __construct()
     {
-        $this->imagenModel = new ImagenModel();
+        $this->coordenadasDMSModel = new CoordenadasDMSModel();
     }
 
     public function guardar()
     {
-        $imagen = new Imagen(
-           urlImagen: $_POST['urlImagen'] ?? '',
-           tipoImagen: $_POST['tipoImagen'] ?? '',
-           fechaCaptura : $_POST['fechaCaptura '] ?? '',
-           activo : $_POST['activo '] ?? '1',
-          
+        $coordenadasDMS = new CoordenadasDMS(
+           idLatitudDMS: $_POST['idLatitudDMS'] ?? '',
+           idLongitudDMS: $_POST['idLongitudDMS'] ?? '',
         );
 
-        $datosEnviar = $imagen->toArray();
-        $respuesta = $this->imagenModel->insertar($datosEnviar);
+        $datosEnviar = $coordenadasDMS->toArray();
+        $respuesta = $this->coordenadasDMSModel->insertar($datosEnviar);
 
         return $respuesta ? "Registro insertado correctamente" : "Error al insertar el registro.";
     }
     
     public function buscarPor()
     {
-        $tipo = $_POST['tipo'] ?? 'activo';
+        $tipo = $_POST['tipo'] ?? 'idCoordenadasDMS';
         $valorBuscado = $_POST['valorBuscado'] ?? '1';
         
-        $imagenes = $this->imagenModel->seleccionar(condiciones: "$tipo = '$valorBuscado'");
+        $imagenes = $this->coordenadasDMSModel->seleccionar(condiciones: "$tipo = '$valorBuscado'");
 
     if ($imagenes) {
         // var_dump($imagenes);
@@ -44,12 +41,12 @@ class ImagenController{
     }
     }
 
-    public function obtenerImagenes(){
-        $idImagen = $_POST['idImagen']?? '1';
+    public function obtenerCoordenadasDMS(){
+        $idCoordenadasDMS = $_POST['idCoordenadasDMS']?? '1';
 
-        $condicion = "idImagen = '$idImagen'";
+        $condicion = "idCoordenadasDMS = '$idCoordenadasDMS'";
 
-        $imagenes = $this->imagenModel->seleccionar(condiciones: $condicion);
+        $imagenes = $this->coordenadasDMSModel->seleccionar(condiciones: $condicion);
 
     if ($imagenes && !empty($imagenes)) {
         header('Content-Type: application/json');
@@ -61,16 +58,16 @@ class ImagenController{
     }
     }
 
-//     public function obtenerImagenesWithParams($idImagen){
-//         $condicion = "idImagen = '$idImagen'";
+//     public function obtenerImagenesWithParams($idCoordenadasDMS){
+//         $condicion = "idCoordenadasDMS = '$idCoordenadasDMS'";
 
-//         $imagenes = $this->imagenModel->seleccionar(condiciones: $condicion);
+//         $imagenes = $this->coordenadasDMSModel->seleccionar(condiciones: $condicion);
 
 //         $arrayImagenes = [];
 //     if ($imagenes && !empty($imagenes)) {
     
-//     foreach ($imagenes as $imagen) {
-//         $arrayImagenes[] = $imagen->fromArray();
+//     foreach ($imagenes as $coordenadasDMS) {
+//         $arrayImagenes[] = $coordenadasDMS->fromArray();
 //     }
 //     return $arrayImagenes;
 //     }
@@ -83,40 +80,38 @@ class ImagenController{
         $data = json_decode($jsonInput, true);
     
         // Si los datos se envían como formulario (application/x-www-form-urlencoded)
-        $imagen = new Imagen(
-            $data['idImagen'],
+        $coordenadasDMS = new CoordenadasDMS(
+            $data['idCoordenadasDMS'],
             $data['urlImagen'],
             $data['tipoImagen'],
-            $data['fechaCaptura'],
-            $data['activo'],
         );
     
         // Convertir a array para la base de datos
-        $datosEnviar = $imagen->toArray();
-        echo "Id Imagen: ". $data['idImagen'];
+        $datosEnviar = $coordenadasDMS->toArray();
+        echo "Id CoordenadasDMS: ". $data['idCoordenadasDMS'];
         // var_dump($datosEnviar);
     
         // Actualizar en la base de datos
-        $imagenes = $this->imagenModel->actualizar($datosEnviar, condicion: "idImagen = '{$imagen->idImagen}'");
+        $imagenes = $this->coordenadasDMSModel->actualizar($datosEnviar, condicion: "idCoordenadasDMS = '{$coordenadasDMS->idCoordenadasDMS}'");
     
         return $imagenes ? "Registro actualizado correctamente" : "Error al actualizar el registro.";
     }
-    public function actualizarWithParams(Imagen $imagen)
+    public function actualizarWithParams(CoordenadasDMS $coordenadasDMS)
     {
         // Convertir a array para la base de datos
-        $datosEnviar = $imagen->toArray();
+        $datosEnviar = $coordenadasDMS->toArray();
     
         // Actualizar en la base de datos
-        $imagenes = $this->imagenModel->actualizar($datosEnviar, condicion: "idImagen = '{$imagen->idImagen}'");
+        $imagenes = $this->coordenadasDMSModel->actualizar($datosEnviar, condicion: "idCoordenadasDMS = '{$coordenadasDMS->idCoordenadasDMS}'");
     
         return $imagenes ? "Registro actualizado correctamente" : "Error al actualizar el registro.";
     }
     
     public function eliminar()
     {
-        $idImagen = $_POST['idImagen'] ?? '';
+        $idCoordenadasDMS = $_POST['idCoordenadasDMS'] ?? '';
         
-        $respuesta = $this->imagenModel->eliminar(condiciones: "idImagen = '$idImagen'");
+        $respuesta = $this->coordenadasDMSModel->eliminar(condiciones: "idCoordenadasDMS = '$idCoordenadasDMS'");
 
         return $respuesta ? "Registro eliminado correctamente" : "Error al eliminar el registro.";
     }
@@ -124,7 +119,7 @@ class ImagenController{
     public function listar()
     {
 
-     $imagenes = $this->imagenModel->seleccionar();
+     $imagenes = $this->coordenadasDMSModel->seleccionar();
 
     if ($imagenes) {
         // var_dump($imagenes);
