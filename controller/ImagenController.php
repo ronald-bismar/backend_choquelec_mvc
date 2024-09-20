@@ -2,138 +2,78 @@
 require_once "model/entities/Imagen.php";
 require_once "model/ImagenModel.php";
 
-class ImagenController{
-
-   private ImagenModel $imagenModel;
+class ImagenController
+{
+    private ImagenModel $imagenModel;
 
     public function __construct()
     {
         $this->imagenModel = new ImagenModel();
     }
 
-    public function guardar()
+    public function guardar(): string
     {
         $imagen = new Imagen(
-           urlImagen: $_POST['urlImagen'] ?? '',
-           tipoImagen: $_POST['tipoImagen'] ?? 'estructura',
-           fechaCaptura : $_POST['fechaCaptura '] ?? '',
-           activo : $_POST['activo '] ?? '1',
-          
+            urlImagen: $_POST['urlImagen'] ?? '',
+            tipoImagen: $_POST['tipoImagen'] ?? 'estructura',
+            fechaCaptura: $_POST['fechaCaptura'] ?? '',
+            activo: $_POST['activo'] ?? '1'
         );
 
-        $datosEnviar = $imagen->toArray();
-        $respuesta = $this->imagenModel->insertar($datosEnviar);
-
-        return $respuesta ? "Registro insertado correctamente" : "Error al insertar el registro.";
+        return $this->imagenModel->insertar($imagen->toArray()) 
+            ? "Registro insertado correctamente" 
+            : "Error al insertar el registro.";
     }
-    
-    public function buscarPor()
+
+    public function buscarPor(): void
     {
         $tipo = $_POST['tipo'] ?? 'activo';
         $valorBuscado = $_POST['valorBuscado'] ?? '1';
         
-        $imagenes = $this->imagenModel->seleccionar(condiciones: "$tipo = '$valorBuscado'");
-
-    if ($imagenes) {
-        // var_dump($imagenes);
-        header('Content-Type: application/json');
-        echo json_encode($imagenes);
-    } else {
-        header('Content-Type: application/json');
-        echo json_encode(null);
-    }
+        $imagenes = $this->imagenModel->seleccionar("$tipo = '$valorBuscado'");
+        $this->enviarJson($imagenes);
     }
 
-    public function obtenerImagenes(){
-        $idImagen = $_POST['idImagen']?? '1';
-
-        $condicion = "idImagen = '$idImagen'";
-
-        $imagenes = $this->imagenModel->seleccionar(condiciones: $condicion);
-
-    if ($imagenes && !empty($imagenes)) {
-        header('Content-Type: application/json');
-        echo json_encode($imagenes[0]);
-    } else {
-        // Si no hay resultados, devolver null como JSON
-        header('Content-Type: application/json');
-        echo json_encode(null);
-    }
-    }
-
-//     public function obtenerImagenesWithParams($idImagen){
-//         $condicion = "idImagen = '$idImagen'";
-
-//         $imagenes = $this->imagenModel->seleccionar(condiciones: $condicion);
-
-//         $arrayImagenes = [];
-//     if ($imagenes && !empty($imagenes)) {
-    
-//     foreach ($imagenes as $imagen) {
-//         $arrayImagenes[] = $imagen->fromArray();
-//     }
-//     return $arrayImagenes;
-//     }
-// }
-
-    public function actualizar()
+    public function obtenerImagenes(): void
     {
-        // Si se envían como JSON
-        $jsonInput = file_get_contents('php://input');
-        $data = json_decode($jsonInput, true);
-    
-        // Si los datos se envían como formulario (application/x-www-form-urlencoded)
+        $idImagen = $_POST['idImagen'] ?? '1';
+        $imagenes = $this->imagenModel->seleccionar("idImagen = '$idImagen'");
+        $this->enviarJson($imagenes[0] ?? null);
+    }
+
+    public function actualizar(): string
+    {
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
         $imagen = new Imagen(
-            $data['idImagen'],
-            $data['urlImagen'],
-            $data['tipoImagen'],
-            $data['fechaCaptura'],
-            $data['activo'],
+            $data['idImagen'] ?? '',
+            $data['urlImagen'] ?? '',
+            $data['tipoImagen'] ?? '',
+            $data['fechaCaptura'] ?? '',
+            $data['activo'] ?? '1'
         );
-    
-        // Convertir a array para la base de datos
-        $datosEnviar = $imagen->toArray();
-        echo "Id Imagen: ". $data['idImagen'];
-        // var_dump($datosEnviar);
-    
-        // Actualizar en la base de datos
-        $imagenes = $this->imagenModel->actualizar($datosEnviar, condicion: "idImagen = '{$imagen->idImagen}'");
-    
-        return $imagenes ? "Registro actualizado correctamente" : "Error al actualizar el registro.";
+
+        return $this->imagenModel->actualizar($imagen->toArray(), "idImagen = '{$imagen->idImagen}'")
+            ? "Registro actualizado correctamente"
+            : "Error al actualizar el registro.";
     }
-    public function actualizarWithParams(Imagen $imagen)
-    {
-        // Convertir a array para la base de datos
-        $datosEnviar = $imagen->toArray();
-    
-        // Actualizar en la base de datos
-        $imagenes = $this->imagenModel->actualizar($datosEnviar, condicion: "idImagen = '{$imagen->idImagen}'");
-    
-        return $imagenes ? "Registro actualizado correctamente" : "Error al actualizar el registro.";
-    }
-    
-    public function eliminar()
+
+    public function eliminar(): string
     {
         $idImagen = $_POST['idImagen'] ?? '';
-        
-        $respuesta = $this->imagenModel->eliminar(condiciones: "idImagen = '$idImagen'");
-
-        return $respuesta ? "Registro eliminado correctamente" : "Error al eliminar el registro.";
+        return $this->imagenModel->eliminar("idImagen = '$idImagen'") 
+            ? "Registro eliminado correctamente" 
+            : "Error al eliminar el registro.";
     }
 
-    public function listar()
+    public function listar(): void
     {
-
-     $imagenes = $this->imagenModel->seleccionar();
-
-    if ($imagenes) {
-        // var_dump($imagenes);
-        header('Content-Type: application/json');
-        echo json_encode($imagenes);
-    } else {
-        // Si no hay resultados, devolver null como JSON
-        header('Content-Type: application/json');
-        echo json_encode(null);
+        $imagenes = $this->imagenModel->seleccionar();
+        $this->enviarJson($imagenes);
     }
+
+    private function enviarJson($data): void
+    {
+        header('Content-Type: application/json');
+        echo json_encode($data ?: null);
     }
-} 
+}

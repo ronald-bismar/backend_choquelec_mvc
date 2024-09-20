@@ -68,9 +68,14 @@ class CoordenadasDMSController {
 
         $responseCordenadaDMSLat = $this->coordenadaDMSModel->actualizar($coordenadaDMSLat->toArray(), condicion: "id = '{$coordenadaDMSLat->id}'");
         $responseCordenadaDMSLon = $this->coordenadaDMSModel->actualizar($coordenadaDMSLon->toArray(), condicion: "id = '{$coordenadaDMSLon->id}'");
-        $responseCordenadasDMS = $this->coordenadasDMSModel->actualizar($coordenadasDMS->toArray(), condicion: "idCoordenadasDMS = '{$coordenadasDMS->idCoordenadasDMS}'");
+
+        if($responseCordenadaDMSLat && $responseCordenadaDMSLon){
+            $responseCordenadasDMS = $this->coordenadasDMSModel->actualizar($coordenadasDMS->toArray(), condicion: "idCoordenadasDMS = '{$coordenadasDMS->idCoordenadasDMS}'");
 
         return $responseCordenadasDMS ? "Registro actualizado correctamente" : "Error al actualizar el registro.";
+        }else {
+            return "Error al actualizar las coordenadas.";
+        }     
     }
 
     public function eliminar() {
