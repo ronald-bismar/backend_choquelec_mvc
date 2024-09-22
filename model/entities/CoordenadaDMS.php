@@ -38,10 +38,10 @@ class CoordenadaDMS {
     public static function fromArray($data) {
         return new CoordenadaDMS(
             $data['id']?? null,
-            $data['grados ']?? '10',
-            $data['minutos ']?? '0',
+            $data['grados']?? '10',
+            $data['minutos']?? '0',
             $data['segundos']?? '0',
-            $data['hemisferio ']?? 'N',
+            $data['hemisferio']?? 'N',
             $data['tipo']?? 'latitud',
         );
     }

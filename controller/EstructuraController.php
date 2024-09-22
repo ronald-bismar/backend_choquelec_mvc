@@ -132,9 +132,16 @@ class EstructuraController
             $data['idOperadorAsignado']
         );
 
-        $this->imagenModel->actualizar(Imagen::fromArray($data['imagenEstructura'])->toArray(), "idImagen = {$data['imagenEstructura']['idImagen']}");
-        $this->imagenModel->actualizar(Imagen::fromArray($data['imagenGPS'])->toArray(), "idImagen = {$data['imagenGPS']['idImagen']}");
-        $this->coordenadaUTMModel->actualizar(CoordenadaUTM::fromArray($data['ubicacionUTM'])->toArray(), "idCoordenadaUTM = {$data['ubicacionUTM']['idCoordenadaUTM']}");
+        $this->imagenModel->actualizar(Imagen::fromArray($data['imagenEstructura'])->toArray(), "idImagen = '{$estructura->imagenEstructura}'");
+        $idImagen = $data['imagenGPS']['idImagen'];
+        $this->imagenModel->actualizar(Imagen::fromArray($data['imagenGPS'])->toArray(), "idImagen = '{$estructura->imagenGPS}'");
+        $this->coordenadaUTMModel->actualizar(CoordenadaUTM::fromArray($data['ubicacionUTM'])->toArray(), "idCoordenadaUTM = '{$estructura->ubicacionUTM}'");
+
+        $idLatitud = $data['ubicacionDMS']['latitud']['id'];
+        $this->coordenadaDMSModel->actualizar(CoordenadaDMS::fromArray($data['ubicacionDMS']['latitud']),"id = '$idLatitud'");
+
+        $idLongitud = $data['ubicacionDMS']['longitud']['id'];
+        $this->coordenadaDMSModel->actualizar(CoordenadaDMS::fromArray($data['ubicacionDMS']['longitud']),"id = '$idLongitud'");
 
         return $this->estructuraModel->actualizar($estructura->toArray(), "idEstructura = '{$estructura->idEstructura}'")
             ? "Registro actualizado correctamente" 

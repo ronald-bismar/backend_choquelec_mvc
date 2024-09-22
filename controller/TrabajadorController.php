@@ -66,13 +66,13 @@ class TrabajadorController
     private function createTrabajadorFromPost(): Trabajador
     {
         return new Trabajador(
-            $_POST['idTrabajador'] ?? null,
-            $_POST['nombre'] ?? '',
-            $_POST['apellido'] ?? '',
-            $_POST['cedulaDeIdentidad'] ?? '',
-            $_POST['contrasenia'] ?? '',
-            $_POST['tipoDeTrabajador'] ?? '',
-            $_POST['activo'] ?? '1'
+            idTrabajador: $_POST['idTrabajador'] == ''? null: $_POST['idTrabajador'],
+            nombre: $_POST['nombre'] ?? '',
+            apellido: $_POST['apellido'] ?? '',
+            cedulaDeIdentidad: $_POST['cedulaDeIdentidad'] ?? '',
+            contrasenia: $_POST['contrasenia'] ?? '',
+            tipoDeTrabajador: $_POST['tipoDeTrabajador'] ?? '',
+            activo: $_POST['activo'] ?? '1'
         );
     }
 

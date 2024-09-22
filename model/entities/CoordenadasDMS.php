@@ -20,7 +20,7 @@ class CoordenadasDMS {
         ];
     
         // Condicionalmente agregar 'idTrabajador'
-        if ($this->idCoordenadasDMS !== null) {
+        if ($this->idCoordenadasDMS != null) {
             $array['idCoordenadasDMS'] = $this->idCoordenadasDMS;
         }
     
