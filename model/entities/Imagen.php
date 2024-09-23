@@ -37,7 +37,7 @@ class Imagen {
             $data['idImagen'],
             $data['urlImagen'],
             $data['tipoImagen'],
-            $data['fechaCaptura'],
+            $data['fechaCaptura']== ''? date("Y-m-d H:i:s"): $data['fechaCaptura'],
             $data['activo'],
         );
     }

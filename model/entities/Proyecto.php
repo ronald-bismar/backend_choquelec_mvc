@@ -32,22 +32,23 @@ class Proyecto {
             'idResidenteDeObra' => $this->idResidenteDeObra,
             'activo' => $this->activo,
         ];
-    
-       
+        if ($this->idProyecto !== null) {
+            $array['idProyecto'] = $this->idProyecto;
+        }
     
         return $array;
     }
     
     public static function fromArray($data) {
         return new Proyecto(
-            $data['nombre'],
-            $data['ubicacion'],
-            $data['estaCompleta'],
-            $data['fechaRegistro'],
-            $data['idSupervisor'],
-            $data['idResidenteDeObra'] == 1,
-            $data['idTrabajador'],
-            $data['activo']
+            idProyecto:$data['idProyecto']?? null,
+            nombre: $data['nombre'],
+            ubicacion: $data['ubicacion'],
+            estaCompleta: $data['estaCompleta'],
+            fechaRegistro: $data['fechaRegistro'] == ''? date("Y-m-d H:i:s"): $data['fechaRegistro'],
+           idSupervisor: $data['idSupervisor'],
+            idResidenteDeObra: $data['idResidenteDeObra'] == 1,
+            activo: $data['activo']
         );
     }
 }

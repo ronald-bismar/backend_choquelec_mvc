@@ -45,45 +45,96 @@ class EstructuraController
         $this->imagenModel->insertar(Imagen::fromArray($data['imagenEstructura'])->toArray());
         $this->imagenModel->insertar(Imagen::fromArray($data['imagenGPS'])->toArray());
         $this->coordenadaUTMModel->insertar(CoordenadaUTM::fromArray($data['ubicacionUTM'])->toArray());
-
         $this->coordenadaDMSModel->insertar($ubicacionDMSLat->toArray());
         $this->coordenadaDMSModel->insertar($ubicacionDMSLon->toArray());
+        $idLatitud = $this->coordenadaDMSModel->seleccionar(campos: "id",condiciones: "grados = '{$ubicacionDMSLat->grados}' AND minutos = '{$ubicacionDMSLat->minutos}' AND segundos = '{$ubicacionDMSLat->segundos}'");
+        $idLongitud = $this->coordenadaDMSModel->seleccionar(campos: "id",condiciones: "grados = '{$ubicacionDMSLon->grados}' AND minutos = '{$ubicacionDMSLon->minutos}' AND segundos = '{$ubicacionDMSLon->segundos}'");
 
-        $idLatitud = $this->coordenadaDMSModel->seleccionar("id", "grados = '{$ubicacionDMSLat->grados}' AND minutos = '{$ubicacionDMSLat->minutos}' AND segundos = '{$ubicacionDMSLat->segundos}'");
-        $idLongitud = $this->coordenadaDMSModel->seleccionar("id", "grados = '{$ubicacionDMSLon->grados}' AND minutos = '{$ubicacionDMSLon->minutos}' AND segundos = '{$ubicacionDMSLon->segundos}'");
+        $ubicacionesDMS->idLatitudDMS = $idLatitud[0]['id'];
+        $ubicacionesDMS->idLongitudDMS = $idLongitud[0]['id'];
 
-        $ubicacionesDMS->idLatitudDMS = $idLatitud;
-        $ubicacionesDMS->idLongitudDMS = $idLongitud;
+        
 
         return $this->coordenadasDMSModel->insertar($ubicacionesDMS->toArray());
+    }
+
+    private function insertarYObtenerIdImagen(array $imagenData): int
+    {
+        $imagen = Imagen::fromArray($imagenData);
+        $this->imagenModel->insertar($imagen->toArray());
+        $resultado = $this->imagenModel->seleccionar(campos: "idImagen",condiciones: "urlImagen = '{$imagen->urlImagen}'");
+        return $resultado[0]['idImagen'];
+    }
+
+    private function insertarYObtenerIdCoordenadaUTM(array $utmData): int
+    {
+        $utm = CoordenadaUTM::fromArray($utmData);
+        $this->coordenadaUTMModel->insertar($utm->toArray());
+        $resultado = $this->coordenadaUTMModel->seleccionar(campos:"idCoordenadaUTM", condiciones: "coordenadaX = '{$utm->coordenadaX}' AND coordenadaY = '{$utm->coordenadaY}' AND zonaCartografica = '{$utm->zonaCartografica}'");
+        return $resultado[0]['idCoordenadaUTM'];
+    }
+
+    private function insertarYObtenerIdCoordenadasDMS(array $dmsData): int
+    {
+        $latitud = CoordenadaDMS::fromArray($dmsData['latitud']);
+        $longitud = CoordenadaDMS::fromArray($dmsData['longitud']);
+        
+        $this->coordenadaDMSModel->insertar($latitud->toArray());
+        $this->coordenadaDMSModel->insertar($longitud->toArray());
+        
+        $idLatitud = $this->coordenadaDMSModel->seleccionar(campos:"id", condiciones: "grados = '{$latitud->grados}' AND minutos = '{$latitud->minutos}' AND segundos = '{$latitud->segundos}'");
+        $idLongitud = $this->coordenadaDMSModel->seleccionar(campos:"id",condiciones: "grados = '{$longitud->grados}' AND minutos = '{$longitud->minutos}' AND segundos = '{$longitud->segundos}'");
+        
+        $coordenadasDMS = new CoordenadasDMS(null, $idLatitud[0]['id'], $idLongitud[0]['id']);
+        $this->coordenadasDMSModel->insertar($coordenadasDMS->toArray());
+        
+        $idLatitud = $idLatitud[0]['id'];
+        $idLongitud = $idLongitud[0]['id'];
+
+        $resultado = $this->coordenadasDMSModel->seleccionar(campos:"idCoordenadasDMS", condiciones: "latitud_id = '$idLatitud' AND longitud_id = '$idLongitud'");
+        return $resultado[0]['idCoordenadasDMS'];
     }
 
     public function guardar()
     {
         $data = $this->obtenerDatosJson();
 
-        if ($this->insertarUbicaciones($data)) {
+        try {
+            // Insertar y obtener IDs de imágenes
+            $idImagenEstructura = $this->insertarYObtenerIdImagen($data['imagenEstructura']);
+            $idImagenGPS = $this->insertarYObtenerIdImagen($data['imagenGPS']);
+
+            // Insertar y obtener ID de coordenada UTM
+            $idCoordenadaUTM = $this->insertarYObtenerIdCoordenadaUTM($data['ubicacionUTM']);
+
+            // Insertar y obtener ID de coordenadas DMS
+            $idCoordenadasDMS = $this->insertarYObtenerIdCoordenadasDMS($data['ubicacionDMS']);
+
+            // Crear y guardar la estructura
             $estructura = new Estructura(
-                $data['idEstructura'],
+                null,
                 $data['nombre'],
-                $data['imagenEstructura']['idImagen'],
-                $data['imagenGPS']['idImagen'],
-                $data['ubicacionUTM']['idCoordenadaUTM'],
-                $data['ubicacionDMS']['idCoordenadasDMS'],
-                $data['estaCompleta'], 
-                $data['fechaRegistro'], 
-                $data['idProyecto'], 
+                $idImagenEstructura,
+                $idImagenGPS,
+                $idCoordenadaUTM,
+                $idCoordenadasDMS,
+                $data['estaCompleta'],
+                $data['fechaRegistro'] == ''? date("Y-m-d H:i:s"): $data['fechaRegistro'],
+                $data['idProyecto'],
                 $data['idOperadorAsignado']
             );
 
-            return $this->estructuraModel->actualizar($estructura->toArray(), "idEstructura = '{$estructura->idEstructura}'") 
-                ? "Registro actualizado correctamente" 
-                : "Error al actualizar el registro.";
+
+            if ($this->estructuraModel->insertar($estructura->toArray(), isEstructura:true)) {
+                return "Registro insertado correctamente";
+            } else {
+                throw new Exception("Error al insertar el registro de la estructura.");
+            }
+        } catch (Exception $e) {
+            // Aquí podrías implementar un rollback de las inserciones previas si es necesario
+            return "Ocurrió un error: " . $e->getMessage();
         }
-
-        return "Ocurrió un error.";
     }
-
     public function buscarPor()
     {
         $tipo = $_POST['tipo'] ?? 'estaCompleta';

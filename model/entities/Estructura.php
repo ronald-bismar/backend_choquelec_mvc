@@ -56,7 +56,7 @@ class Estructura {
             $data['ubicacionDMS'],
             $data['estaCompleta'] == 1,
             $data['idTrabajador'],
-            $data['fechaRegistro'],
+            $data['fechaRegistro']== ''? date("Y-m-d H:i:s"): $data['fechaRegistro'],
             $data['idProyecto'],
             $data['idOperadorAsignado']
         );

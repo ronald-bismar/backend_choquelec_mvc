@@ -13,14 +13,19 @@ class BD
         }
     }
 
-    function insertar($valoresEntrada)
+    function insertar($valoresEntrada, $isEstructura = false)
     {
 
         $campos = implode(',', array_keys($valoresEntrada));
         $valores = "'" . implode("','", array_values($valoresEntrada)) . "'";
 
         $consulta = "INSERT INTO $this->nombreTabla ($campos) VALUES($valores)";
-        // echo $consulta;
+
+        if($isEstructura){
+            echo "<br> Consultas: ".$consulta."<br>";
+        }
+        
+
         $respuesta = $this->conexion->query($consulta);
 
         if (!$respuesta) {
@@ -73,7 +78,7 @@ class BD
     
         $consulta = $pares != [] ? "UPDATE $this->nombreTabla $set $where" : '';
 
-        // echo "<br> Consultas: ".$consulta."<br>";sol
+        // echo "<br> Consultas: ".$consulta."<br>";
     
         if($consulta != ''){
             $respuesta = $this->conexion->query($consulta);
@@ -94,6 +99,8 @@ class BD
         $condiciones = $condiciones ? "WHERE $condiciones" : '';
 
         $consulta = "DELETE FROM $this->nombreTabla $condiciones";
+
+        // echo "Consulta de eliminar: ".$consulta;
         $respuesta = $this->conexion->query($consulta);
         
         if (!$respuesta) {
