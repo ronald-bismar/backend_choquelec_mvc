@@ -1,4 +1,4 @@
-<?php
+<?php 
 class BD
 {
     private $conexion;
@@ -6,7 +6,9 @@ class BD
 
     function __construct()
     {
+        // Usar MYSQLI_CLIENT_PERSISTENT para conexión persistente
         $this->conexion = new mysqli('bpd8jelghf6igtd6gi28-mysql.services.clever-cloud.com', 'uc5kajgajjlmiubh', '95sQKgUZZK68X0LcjM9d', 'bpd8jelghf6igtd6gi28');
+
 
         if ($this->conexion->connect_error) {
             die("Conexión fallida: " . $this->conexion->connect_error);
@@ -15,7 +17,6 @@ class BD
 
     function insertar($valoresEntrada, $isEstructura = false)
     {
-
         $campos = implode(',', array_keys($valoresEntrada));
         $valores = "'" . implode("','", array_values($valoresEntrada)) . "'";
 
@@ -25,19 +26,18 @@ class BD
             echo "<br> Consultas: ".$consulta."<br>";
         }
         
-
         $respuesta = $this->conexion->query($consulta);
 
         if (!$respuesta) {
             die("Error al insertar: " . $this->conexion->error);
-        }else {
+        } else {
             echo "Registro exitoso";
         }
 
         return $respuesta;
     }
 
-    function seleccionar($campos = '*',$innerjoin = '' , $condiciones = '', $ordenamiento = '', $limite = '')
+    function seleccionar($campos = '*', $innerjoin = '', $condiciones = '', $ordenamiento = '', $limite = '')
     {
         $condiciones = $condiciones ? "WHERE $condiciones" : '';
         $ordenamiento = $ordenamiento ? "ORDER BY $ordenamiento" : '';
@@ -53,10 +53,10 @@ class BD
         
         if (!$respuesta) {
             echo("Error al seleccionar: " . $this->conexion->error);
-        }else {
-        while ($fila = $respuesta->fetch_assoc()) {
-            $datos[] = $fila;
-        }
+        } else {
+            while ($fila = $respuesta->fetch_assoc()) {
+                $datos[] = $fila;
+            }
         }
 
         return $datos;
@@ -67,7 +67,9 @@ class BD
         $pares = [];
         // Construir pares campo=valor
         foreach ($valoresEntrada as $campo => $valor) {
-            if($valor != ''){$pares[] = "$campo='$valor'";}
+            if ($valor != '') {
+                $pares[] = "$campo='$valor'";
+            }
         }
     
         // Unir los pares con comas
@@ -80,7 +82,7 @@ class BD
 
         // echo "<br> Consultas: ".$consulta."<br>";
     
-        if($consulta != ''){
+        if ($consulta != '') {
             $respuesta = $this->conexion->query($consulta);
         }
         
@@ -93,7 +95,6 @@ class BD
         return $respuesta;
     }
     
-
     function eliminar($condiciones = '')
     {
         $condiciones = $condiciones ? "WHERE $condiciones" : '';
@@ -105,11 +106,10 @@ class BD
         
         if (!$respuesta) {
             die("Error al eliminar: " . $this->conexion->error);
-        }else {
+        } else {
             echo 'Eliminacion exitosa';
         }
 
-        
         return $respuesta;
     }
 }
