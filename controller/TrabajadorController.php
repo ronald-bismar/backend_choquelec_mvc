@@ -59,14 +59,13 @@ class TrabajadorController
 
     public function listar()
     {
-        $trabajadores = $this->trabajadorModel->seleccionar(condiciones: "activo = '1'");
+        $trabajadores = $this->trabajadorModel->seleccionar();
         $this->sendJsonResponse($trabajadores);
     }
 
     private function createTrabajadorFromPost(): Trabajador
     {
-        return new Trabajador(
-            idTrabajador: $_POST['idTrabajador'] == ''? null: $_POST['idTrabajador'],
+        $trabajador = new Trabajador(
             nombre: $_POST['nombre'] ?? '',
             apellido: $_POST['apellido'] ?? '',
             cedulaDeIdentidad: $_POST['cedulaDeIdentidad'] ?? '',
@@ -74,6 +73,11 @@ class TrabajadorController
             tipoDeTrabajador: $_POST['tipoDeTrabajador'] ?? '',
             activo: $_POST['activo'] ?? '1'
         );
+
+        if($_POST['idTrabajador'] != null && $_POST['idTrabajador'] != ''){
+            $trabajador->idTrabajador = $_POST['idTrabajador'];
+        }
+        return $trabajador;
     }
 
     private function sendJsonResponse($data)

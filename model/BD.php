@@ -22,10 +22,6 @@ class BD
 
         $consulta = "INSERT INTO $this->nombreTabla ($campos) VALUES($valores)";
 
-        if($isEstructura){
-            echo "<br> Consultas: ".$consulta."<br>";
-        }
-        
         $respuesta = $this->conexion->query($consulta);
 
         if (!$respuesta) {
