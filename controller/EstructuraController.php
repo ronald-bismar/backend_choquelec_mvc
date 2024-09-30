@@ -125,7 +125,7 @@ class EstructuraController
             );
 
 
-            if ($this->estructuraModel->insertar($estructura->toArray(), isEstructura:true)) {
+            if ($this->estructuraModel->insertar($estructura->toArray())) {
                 return "Registro insertado correctamente";
             } else {
                 throw new Exception("Error al insertar el registro de la estructura.");
@@ -213,4 +213,38 @@ class EstructuraController
         header('Content-Type: application/json');
         echo json_encode($estructuras ?: null);
     }
+
+    public function obtenerUltimaEstructuraDeTrabajador()
+{
+    // Obtener el ID del trabajador desde el POST, si no existe se usa un valor predeterminado (1)
+    $idTrabajador = $_POST['idOperadorAsignado'] ?? '1';
+
+    // Seleccionar los campos necesarios
+    $campos = "e.idEstructura, e.nombre, e.fechaRegistro, e.estaCompleta, e.idOperadorAsignado, e.idProyecto, 
+              i.urlImagen AS urlImagenEstructura, ig.urlImagen AS urlImagenGPS, cu.coordenadaX, cu.coordenadaY, 
+              cu.zonaCartografica, lat.grados AS latitudGrados, lat.minutos AS latitudMinutos, lat.segundos AS latitudSegundos, 
+              lat.hemisferio AS latitudHemisferio, lon.grados AS longitudGrados, lon.minutos AS longitudMinutos, lon.segundos AS longitudSegundos, lon.hemisferio AS longitudHemisferio";
+
+    // Definir los JOIN necesarios
+    $joins = "e INNER JOIN imagen i ON e.imagenEstructura = i.idImagen
+              LEFT JOIN imagen ig ON e.imagenGPS = ig.idImagen
+              INNER JOIN coordenadautm cu ON e.ubicacionUTM = cu.idCoordenadaUTM
+              INNER JOIN coordenadasdms cosdms ON cosdms.idCoordenadasDMS = e.ubicacionDMS
+              INNER JOIN coordenadadms lat ON cosdms.latitud_id = lat.id
+              INNER JOIN coordenadadms lon ON cosdms.longitud_id = lon.id";
+
+    // Condición para seleccionar las estructuras del trabajador
+    $condiciones = "e.idOperadorAsignado = '$idTrabajador'";
+
+    // Ordenar por la fecha de registro de forma descendente y limitar a la primera fila
+    $orden = "e.fechaRegistro DESC";
+    $limite = "1";
+
+    // Realizar la consulta
+    $estructuras = $this->estructuraModel->seleccionar($campos, $joins, $condiciones, ordenamiento: $orden, limite: $limite);
+
+    // Devolver la estructura en formato JSON
+    header('Content-Type: application/json');
+    echo json_encode($estructuras[0] ?? null);
+}    
 }

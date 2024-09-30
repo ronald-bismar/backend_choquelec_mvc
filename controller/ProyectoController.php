@@ -94,7 +94,7 @@ class ProyectoController
     private function createProyectoFromPost(): Proyecto
     {
         return new Proyecto(
-            idProyecto: $_POST['idProyecto'] ?? null,
+            idProyecto: !empty($_POST['idProyecto']) ? $_POST['idProyecto'] : null,
             nombre: $_POST['nombre'] ?? '',
             ubicacion: $_POST['ubicacion'] ?? '',
             estaCompleta: $_POST['estaCompleta'] ?? '',

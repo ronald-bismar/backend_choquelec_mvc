@@ -53,7 +53,7 @@ class TrabajadorController
     public function eliminar()
     {
         $idTrabajador = $_POST['idTrabajador'] ?? '0';
-        $result = $this->trabajadorModel->eliminar(condiciones: "idTrabajador = '$idTrabajador'");
+        $result = $this->trabajadorModel->actualizar(valoresEntrada: ['activo' => 0],condicion: "idTrabajador = '$idTrabajador'");
         return $result ? "Registro eliminado correctamente" : "Error al eliminar el registro.";
     }
 
