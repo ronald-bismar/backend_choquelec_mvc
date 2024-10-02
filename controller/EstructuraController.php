@@ -144,6 +144,15 @@ class EstructuraController
         header('Content-Type: application/json');
         echo json_encode($estructuras ?: null);
     }
+    public function buscarUltimaEstructura() // Afinar este metodo
+    {
+        $tipo = $_POST['tipo'] ?? 'estaCompleta';
+        $valorBuscado = $_POST['valorBuscado'] ?? '1';
+
+        $estructuras = $this->estructuraModel->seleccionar("*", condiciones:"$tipo = '$valorBuscado'");
+        header('Content-Type: application/json');
+        echo json_encode($estructuras[0] ?? null);
+    }
 
     public function obtenerEstructura()
     {
