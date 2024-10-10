@@ -36,102 +36,44 @@ class EstructuraController
         return json_decode(file_get_contents('php://input'), true);
     }
 
-    private function insertarUbicaciones(array $data): bool
-    {
-        $ubicacionesDMS = CoordenadasDMS::fromArray($data['ubicacionDMS']);
-        $ubicacionDMSLat = CoordenadaDMS::fromArray($data['ubicacionDMS']['latitud']);
-        $ubicacionDMSLon = CoordenadaDMS::fromArray($data['ubicacionDMS']['longitud']);
-
-        $this->imagenModel->insertar(Imagen::fromArray($data['imagenEstructura'])->toArray());
-        $this->imagenModel->insertar(Imagen::fromArray($data['imagenGPS'])->toArray());
-        $this->coordenadaUTMModel->insertar(CoordenadaUTM::fromArray($data['ubicacionUTM'])->toArray());
-        $this->coordenadaDMSModel->insertar($ubicacionDMSLat->toArray());
-        $this->coordenadaDMSModel->insertar($ubicacionDMSLon->toArray());
-        $idLatitud = $this->coordenadaDMSModel->seleccionar(campos: "id",condiciones: "grados = '{$ubicacionDMSLat->grados}' AND minutos = '{$ubicacionDMSLat->minutos}' AND segundos = '{$ubicacionDMSLat->segundos}'");
-        $idLongitud = $this->coordenadaDMSModel->seleccionar(campos: "id",condiciones: "grados = '{$ubicacionDMSLon->grados}' AND minutos = '{$ubicacionDMSLon->minutos}' AND segundos = '{$ubicacionDMSLon->segundos}'");
-
-        $ubicacionesDMS->idLatitudDMS = $idLatitud[0]['id'];
-        $ubicacionesDMS->idLongitudDMS = $idLongitud[0]['id'];
-
-        
-
-        return $this->coordenadasDMSModel->insertar($ubicacionesDMS->toArray());
-    }
-
-    private function insertarYObtenerIdImagen(array $imagenData): int
-    {
-        $imagen = Imagen::fromArray($imagenData);
-        $this->imagenModel->insertar($imagen->toArray());
-        $resultado = $this->imagenModel->seleccionar(campos: "idImagen",condiciones: "urlImagen = '{$imagen->urlImagen}'");
-        return $resultado[0]['idImagen'];
-    }
-
-    private function insertarYObtenerIdCoordenadaUTM(array $utmData): int
-    {
-        $utm = CoordenadaUTM::fromArray($utmData);
-        $this->coordenadaUTMModel->insertar($utm->toArray());
-        $resultado = $this->coordenadaUTMModel->seleccionar(campos:"idCoordenadaUTM", condiciones: "coordenadaX = '{$utm->coordenadaX}' AND coordenadaY = '{$utm->coordenadaY}' AND zonaCartografica = '{$utm->zonaCartografica}'");
-        return $resultado[0]['idCoordenadaUTM'];
-    }
-
-    private function insertarYObtenerIdCoordenadasDMS(array $dmsData): int
-    {
-        $latitud = CoordenadaDMS::fromArray($dmsData['latitud']);
-        $longitud = CoordenadaDMS::fromArray($dmsData['longitud']);
-        
-        $this->coordenadaDMSModel->insertar($latitud->toArray());
-        $this->coordenadaDMSModel->insertar($longitud->toArray());
-        
-        $idLatitud = $this->coordenadaDMSModel->seleccionar(campos:"id", condiciones: "grados = '{$latitud->grados}' AND minutos = '{$latitud->minutos}' AND segundos = '{$latitud->segundos}'");
-        $idLongitud = $this->coordenadaDMSModel->seleccionar(campos:"id",condiciones: "grados = '{$longitud->grados}' AND minutos = '{$longitud->minutos}' AND segundos = '{$longitud->segundos}'");
-        
-        $coordenadasDMS = new CoordenadasDMS(null, $idLatitud[0]['id'], $idLongitud[0]['id']);
-        $this->coordenadasDMSModel->insertar($coordenadasDMS->toArray());
-        
-        $idLatitud = $idLatitud[0]['id'];
-        $idLongitud = $idLongitud[0]['id'];
-
-        $resultado = $this->coordenadasDMSModel->seleccionar(campos:"idCoordenadasDMS", condiciones: "latitud_id = '$idLatitud' AND longitud_id = '$idLongitud'");
-        return $resultado[0]['idCoordenadasDMS'];
-    }
-
     public function guardar()
     {
         $data = $this->obtenerDatosJson();
-
+    
         try {
-            // Insertar y obtener IDs de imágenes
-            $idImagenEstructura = $this->insertarYObtenerIdImagen($data['imagenEstructura']);
-            $idImagenGPS = $this->insertarYObtenerIdImagen($data['imagenGPS']);
-
-            // Insertar y obtener ID de coordenada UTM
-            $idCoordenadaUTM = $this->insertarYObtenerIdCoordenadaUTM($data['ubicacionUTM']);
-
-            // Insertar y obtener ID de coordenadas DMS
-            $idCoordenadasDMS = $this->insertarYObtenerIdCoordenadasDMS($data['ubicacionDMS']);
-
-            // Crear y guardar la estructura
-            $estructura = new Estructura(
-                null,
+            // Prepara los datos en un array
+            $estructuraData = [
                 $data['nombre'],
-                $idImagenEstructura,
-                $idImagenGPS,
-                $idCoordenadaUTM,
-                $idCoordenadasDMS,
+                $data['imagenEstructura']['urlImagen'],
+                $data['imagenGPS']['urlImagen'],
+                $data['ubicacionUTM']['coordenadaX'],
+                $data['ubicacionUTM']['coordenadaY'],
+                $data['ubicacionUTM']['zonaCartografica'],
+                $data['ubicacionDMS']['latitud']['grados'],
+                $data['ubicacionDMS']['latitud']['minutos'],
+                $data['ubicacionDMS']['latitud']['segundos'],
+                $data['ubicacionDMS']['latitud']['hemisferio'],
+                $data['ubicacionDMS']['longitud']['grados'],
+                $data['ubicacionDMS']['longitud']['minutos'],
+                $data['ubicacionDMS']['longitud']['segundos'],
+                $data['ubicacionDMS']['longitud']['hemisferio'],
                 $data['estaCompleta'],
-                $data['fechaRegistro'] == ''? date("Y-m-d H:i:s"): $data['fechaRegistro'],
                 $data['idProyecto'],
                 $data['idOperadorAsignado']
-            );
-
-
-            if ($this->estructuraModel->insertar($estructura->toArray())) {
+            ];
+                
+    // $ejemploData = ['Motor de bombeo de agua','http://res.cloudinary.com/dt5rqpa84
+    // /image/upload/v1728571183/public/cxjwtgfixwq3gzzurm5t.jpg','http://res.cloudinary.com/d
+    // t5rqpa84/image/upload/v1728571182/public/omcfm1hoccqduvyqmr6j.jpg','2345454','8675676',
+    // '19L','11','29','6.4277','S','52','18','6.3318','W','1','1','49'];
+    
+            // Inserta la estructura en la base de datos
+            if ($this->estructuraModel->insertarConProcedimientoAlmacenado(valoresEntrada: $estructuraData, nombreProcedimiento: "InsertEstructura")) {
                 return "Registro insertado correctamente";
             } else {
                 throw new Exception("Error al insertar el registro de la estructura.");
             }
         } catch (Exception $e) {
-            // Aquí podrías implementar un rollback de las inserciones previas si es necesario
             return "Ocurrió un error: " . $e->getMessage();
         }
     }
@@ -144,12 +86,19 @@ class EstructuraController
         header('Content-Type: application/json');
         echo json_encode($estructuras ?: null);
     }
-    public function buscarUltimaEstructura() // Afinar este metodo
+    
+    public function buscarUltimaEstructuraDeTrabajador() 
+    // Afinar este metodo
     {
-        $tipo = $_POST['tipo'] ?? 'estaCompleta';
+        $tipo = $_POST['tipo'] ?? 'idOperadorAsignado';
         $valorBuscado = $_POST['valorBuscado'] ?? '1';
+         // Ordenar por la fecha de registro de forma descendente y limitar a la primera fila
+         $orden = "fechaRegistro DESC";
+         $limite = "1";
 
-        $estructuras = $this->estructuraModel->seleccionar("*", condiciones:"$tipo = '$valorBuscado'");
+        $estructuras = $this->estructuraModel->seleccionar("*", condiciones:"$tipo = '$valorBuscado'", ordenamiento: $orden, limite: $limite);
+
+       
         header('Content-Type: application/json');
         echo json_encode($estructuras[0] ?? null);
     }
@@ -221,39 +170,22 @@ class EstructuraController
         $estructuras = $this->estructuraModel->seleccionar();
         header('Content-Type: application/json');
         echo json_encode($estructuras ?: null);
+    }   
+    public function reporteEstructurasAsignadas()
+    {
+        $consulta = "SELECT 
+    e.nombre AS nombre_estructura,
+    CONCAT(t.nombre, ' ', t.apellido) AS nombre_completo_operario
+                        FROM 
+                            estructura e 
+                        LEFT JOIN 
+                            trabajador t ON e.idOperadorAsignado = t.idTrabajador
+WHERE 
+    t.activo = 1 OR t.idTrabajador IS NULL;  -- Incluir estructuras sin operarios asignados
+";
+        
+        $data = $this->estructuraModel->ejecutarConsultaPersonalizada($consulta);
+        header('Content-Type: application/json');
+        echo json_encode($data ?: null);
     }
-
-    public function obtenerUltimaEstructuraDeTrabajador()
-{
-    // Obtener el ID del trabajador desde el POST, si no existe se usa un valor predeterminado (1)
-    $idTrabajador = $_POST['idOperadorAsignado'] ?? '1';
-
-    // Seleccionar los campos necesarios
-    $campos = "e.idEstructura, e.nombre, e.fechaRegistro, e.estaCompleta, e.idOperadorAsignado, e.idProyecto, 
-              i.urlImagen AS urlImagenEstructura, ig.urlImagen AS urlImagenGPS, cu.coordenadaX, cu.coordenadaY, 
-              cu.zonaCartografica, lat.grados AS latitudGrados, lat.minutos AS latitudMinutos, lat.segundos AS latitudSegundos, 
-              lat.hemisferio AS latitudHemisferio, lon.grados AS longitudGrados, lon.minutos AS longitudMinutos, lon.segundos AS longitudSegundos, lon.hemisferio AS longitudHemisferio";
-
-    // Definir los JOIN necesarios
-    $joins = "e INNER JOIN imagen i ON e.imagenEstructura = i.idImagen
-              LEFT JOIN imagen ig ON e.imagenGPS = ig.idImagen
-              INNER JOIN coordenadautm cu ON e.ubicacionUTM = cu.idCoordenadaUTM
-              INNER JOIN coordenadasdms cosdms ON cosdms.idCoordenadasDMS = e.ubicacionDMS
-              INNER JOIN coordenadadms lat ON cosdms.latitud_id = lat.id
-              INNER JOIN coordenadadms lon ON cosdms.longitud_id = lon.id";
-
-    // Condición para seleccionar las estructuras del trabajador
-    $condiciones = "e.idOperadorAsignado = '$idTrabajador'";
-
-    // Ordenar por la fecha de registro de forma descendente y limitar a la primera fila
-    $orden = "e.fechaRegistro DESC";
-    $limite = "1";
-
-    // Realizar la consulta
-    $estructuras = $this->estructuraModel->seleccionar($campos, $joins, $condiciones, ordenamiento: $orden, limite: $limite);
-
-    // Devolver la estructura en formato JSON
-    header('Content-Type: application/json');
-    echo json_encode($estructuras[0] ?? null);
-}    
 }

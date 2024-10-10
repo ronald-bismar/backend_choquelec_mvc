@@ -136,4 +136,16 @@ class ProyectoController
                 INNER JOIN coordenadadms lat ON cosdms.latitud_id = lat.id
                 INNER JOIN coordenadadms lon ON cosdms.longitud_id = lon.id";
     }
+    public function reporteProyectosAsignados()
+    {
+        $consulta = "SELECT t.nombre, t.apellido, tt.descripcion AS tipoDeTrabajador, p.nombre AS nombreProyecto, p.estaCompleta, p.fechaRegistro 
+        FROM trabajador t
+        JOIN proyecto p ON t.idTrabajador = p.idSupervisor OR t.idTrabajador = p.idResidenteDeObra
+        JOIN tipo_trabajador tt ON t.tipoDeTrabajador = tt.idTipoTrabajador
+        WHERE t.activo = 1;
+        ";
+        
+        $data = $this->proyectoModel->ejecutarConsultaPersonalizada($consulta);
+        $this->sendJsonResponse($data);
+    }
 }

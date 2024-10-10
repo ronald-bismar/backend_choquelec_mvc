@@ -7,7 +7,10 @@ class BD
     function __construct()
     {
         // Usar MYSQLI_CLIENT_PERSISTENT para conexión persistente
+
         $this->conexion = new mysqli('bpd8jelghf6igtd6gi28-mysql.services.clever-cloud.com', 'uc5kajgajjlmiubh', '95sQKgUZZK68X0LcjM9d', 'bpd8jelghf6igtd6gi28');
+
+        // $this->conexion = new mysqli('localhost', 'root', '', 'bpd8jelghf6igtd6gi28');
 
 
         if ($this->conexion->connect_error) {
@@ -21,6 +24,8 @@ class BD
         $valores = "'" . implode("','", array_values($valoresEntrada)) . "'";
 
         $consulta = "INSERT INTO $this->nombreTabla ($campos) VALUES($valores)";
+
+
 
         $respuesta = $this->conexion->query($consulta);
 
@@ -41,7 +46,7 @@ class BD
 
         $consulta = "SELECT $campos FROM $this->nombreTabla $innerjoin $condiciones $ordenamiento $limite";
 
-        // echo "$consulta <br><br>";
+        // echo "Consulta de seleccionar: ".$consulta;
 
         $respuesta = $this->conexion->query($consulta);
 
@@ -107,5 +112,35 @@ class BD
         }
 
         return $respuesta;
+    }
+    function insertarConProcedimientoAlmacenado($valoresEntrada, $nombreProcedimiento)
+    {
+        $valores = "'" . implode("','", array_values($valoresEntrada)) . "'";
+        $consulta = "CALL $nombreProcedimiento($valores)";
+        echo "Consulta de insertar con procedimiento almacenado: ".$consulta;
+        $respuesta = $this->conexion->query($consulta);
+
+        if (!$respuesta) {
+            die("Error al insertar: " . $this->conexion->error);
+        } else {
+            echo "Registro exitoso";
+        }
+        return $respuesta;
+    }
+
+    public function ejecutarConsultaPersonalizada($consulta)
+    {
+        $respuesta = $this->conexion->query($consulta);
+
+        $datos = [];
+        if (!$respuesta) {
+            die("Error en la consulta: " . $this->conexion->error);
+        } else {
+            while ($fila = $respuesta->fetch_assoc()) {
+                $datos[] = $fila;
+            }
+        }
+
+        return $datos;
     }
 }
