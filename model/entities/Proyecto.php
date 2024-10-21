@@ -8,10 +8,11 @@ class Proyecto {
     public $fechaRegistro;
     public $idSupervisor;
     public $idResidenteDeObra;
+    public $imagenProyecto;
     public $activo;
 
-    // Constructor con la conexiÃ³n a la base de datos
-    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = null, $activo = '1') {
+    // Constructor con la conexi¨®n a la base de datos
+    function __construct($idProyecto = null, $nombre = '', $ubicacion = '', $estaCompleta = false, $fechaRegistro = '', $idSupervisor = 0, $idResidenteDeObra = null, $activo = '1', $imagenProyecto = null) {
         $this->idProyecto = $idProyecto;
         $this->nombre = $nombre;
         $this->ubicacion = $ubicacion;
@@ -20,6 +21,7 @@ class Proyecto {
         $this->idSupervisor = $idSupervisor;
         $this->idResidenteDeObra = $idResidenteDeObra;
         $this->activo = $activo;
+        $this->imagenProyecto = $imagenProyecto;
     }
 
     public function toArray() {
@@ -35,6 +37,9 @@ class Proyecto {
         if ($this->idProyecto !== null) {
             $array['idProyecto'] = $this->idProyecto;
         }
+        if ($this->imagenProyecto !== null) {
+            $array['imagenProyecto'] = $this->imagenProyecto;
+        }
     
         return $array;
     }
@@ -46,9 +51,10 @@ class Proyecto {
             ubicacion: $data['ubicacion'],
             estaCompleta: $data['estaCompleta'],
             fechaRegistro: $data['fechaRegistro'] == ''? date("Y-m-d H:i:s"): $data['fechaRegistro'],
-           idSupervisor: $data['idSupervisor'],
+            idSupervisor: $data['idSupervisor'],
             idResidenteDeObra: $data['idResidenteDeObra'] == 1,
-            activo: $data['activo']
+            activo: $data['activo'],
+            imagenProyecto: $data['imagenProyecto']
         );
     }
 }

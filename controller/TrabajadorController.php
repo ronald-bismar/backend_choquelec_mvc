@@ -71,7 +71,8 @@ class TrabajadorController
             cedulaDeIdentidad: $_POST['cedulaDeIdentidad'] ?? '',
             contrasenia: $_POST['contrasenia'] ?? '',
             tipoDeTrabajador: $_POST['tipoDeTrabajador'] ?? '',
-            activo: $_POST['activo'] ?? '1'
+            activo: $_POST['activo'] ?? '1',
+            proyectoAsignado: $_POST['proyectoAsignado'] == '' ||  $_POST['proyectoAsignado'] == null ?? null
         );
 
         if($_POST['idTrabajador'] != null && $_POST['idTrabajador'] != ''){
@@ -84,15 +85,5 @@ class TrabajadorController
     {
         header('Content-Type: application/json');
         echo json_encode($data);
-    }
-    public function reporteTrabajadores()
-    {
-        $consulta = "SELECT t.idTrabajador, t.nombre, t.apellido, t.cedulaDeIdentidad, tt.descripcion AS tipoDeTrabajador
-        FROM trabajador t
-        JOIN tipo_trabajador tt ON t.tipoDeTrabajador = tt.idTipoTrabajador;
-";
-        
-        $data = $this->trabajadorModel->ejecutarConsultaPersonalizada($consulta);
-        $this->sendJsonResponse($data);
     }
 }

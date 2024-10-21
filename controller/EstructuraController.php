@@ -59,7 +59,7 @@ class EstructuraController
                 $data['ubicacionDMS']['longitud']['hemisferio'],
                 $data['estaCompleta'],
                 $data['idProyecto'],
-                $data['idOperadorAsignado']
+                $data['idOperadorAsignado']?? null
             ];
                 
     // $ejemploData = ['Motor de bombeo de agua','http://res.cloudinary.com/dt5rqpa84
@@ -74,7 +74,7 @@ class EstructuraController
                 throw new Exception("Error al insertar el registro de la estructura.");
             }
         } catch (Exception $e) {
-            return "Ocurri贸 un error: " . $e->getMessage();
+            return "Ocurrió un error: " . $e->getMessage();
         }
     }
     public function buscarPor()
@@ -125,37 +125,43 @@ class EstructuraController
     }
 
     public function actualizar()
-    {
-        $data = $this->obtenerDatosJson();
+{
+    $data = $this->obtenerDatosJson();
 
-        $estructura = new Estructura(
+    try {
+        // Prepara los datos en un array
+        $estructuraData = [
             $data['idEstructura'],
             $data['nombre'],
-            $data['imagenEstructura']['idImagen'],
-            $data['imagenGPS']['idImagen'],
-            $data['ubicacionUTM']['idCoordenadaUTM'],
-            $data['ubicacionDMS']['idCoordenadasDMS'],
-            $data['estaCompleta'], 
-            $data['fechaRegistro'], 
-            $data['idProyecto'], 
+            $data['imagenEstructura']['urlImagen'],
+            $data['imagenGPS']['urlImagen'],
+            $data['ubicacionUTM']['coordenadaX'],
+            $data['ubicacionUTM']['coordenadaY'],
+            $data['ubicacionUTM']['zonaCartografica'],
+            $data['ubicacionDMS']['latitud']['grados'],
+            $data['ubicacionDMS']['latitud']['minutos'],
+            $data['ubicacionDMS']['latitud']['segundos'],
+            $data['ubicacionDMS']['latitud']['hemisferio'],
+            $data['ubicacionDMS']['longitud']['grados'],
+            $data['ubicacionDMS']['longitud']['minutos'],
+            $data['ubicacionDMS']['longitud']['segundos'],
+            $data['ubicacionDMS']['longitud']['hemisferio'],
+            $data['estaCompleta'],
+            $data['idProyecto'],
             $data['idOperadorAsignado']
-        );
+        ];
 
-        $this->imagenModel->actualizar(Imagen::fromArray($data['imagenEstructura'])->toArray(), "idImagen = '{$estructura->imagenEstructura}'");
-        $idImagen = $data['imagenGPS']['idImagen'];
-        $this->imagenModel->actualizar(Imagen::fromArray($data['imagenGPS'])->toArray(), "idImagen = '{$estructura->imagenGPS}'");
-        $this->coordenadaUTMModel->actualizar(CoordenadaUTM::fromArray($data['ubicacionUTM'])->toArray(), "idCoordenadaUTM = '{$estructura->ubicacionUTM}'");
-
-        $idLatitud = $data['ubicacionDMS']['latitud']['id'];
-        $this->coordenadaDMSModel->actualizar(CoordenadaDMS::fromArray($data['ubicacionDMS']['latitud']),"id = '$idLatitud'");
-
-        $idLongitud = $data['ubicacionDMS']['longitud']['id'];
-        $this->coordenadaDMSModel->actualizar(CoordenadaDMS::fromArray($data['ubicacionDMS']['longitud']),"id = '$idLongitud'");
-
-        return $this->estructuraModel->actualizar($estructura->toArray(), "idEstructura = '{$estructura->idEstructura}'")
-            ? "Registro actualizado correctamente" 
-            : "Error al actualizar el registro.";
+        // Actualiza la estructura en la base de datos usando el procedimiento almacenado
+        if ($this->estructuraModel->insertarConProcedimientoAlmacenado(valoresEntrada: $estructuraData, nombreProcedimiento: "UpdateEstructura")) {
+            return "Registro actualizado correctamente";
+        } else {
+            throw new Exception("Error al actualizar el registro de la estructura.");
+        }
+    } catch (Exception $e) {
+        return "Ocurri�� un error: " . $e->getMessage();
     }
+}
+
 
     public function eliminar()
     {
@@ -165,27 +171,25 @@ class EstructuraController
             : "Error al eliminar el registro.";
     }
 
+    public function getImageForProject(){
+        $idProyecto = $_POST['idProyecto'] ?? '1';
+
+        $campos = "i.urlImagen AS urlImagenEstructura";
+        $joins = "e INNER JOIN imagen i ON e.imagenEstructura = i.idImagen";
+        $condiciones = "e.idProyecto = '$idProyecto'";
+        $orden = "e.fechaRegistro DESC";
+        $limite = "1";
+
+        $estructura = $this->estructuraModel->seleccionar($campos, $joins, $condiciones, $orden, $limite);
+
+        header('Content-Type: application/json');
+        echo json_encode($estructura[0]['urlImagenEstructura'] ?? null);
+    }
+
     public function listar()
     {
         $estructuras = $this->estructuraModel->seleccionar();
         header('Content-Type: application/json');
         echo json_encode($estructuras ?: null);
     }   
-    public function reporteEstructurasAsignadas()
-    {
-        $consulta = "SELECT 
-    e.nombre AS nombre_estructura,
-    CONCAT(t.nombre, ' ', t.apellido) AS nombre_completo_operario
-                        FROM 
-                            estructura e 
-                        LEFT JOIN 
-                            trabajador t ON e.idOperadorAsignado = t.idTrabajador
-WHERE 
-    t.activo = 1 OR t.idTrabajador IS NULL;  -- Incluir estructuras sin operarios asignados
-";
-        
-        $data = $this->estructuraModel->ejecutarConsultaPersonalizada($consulta);
-        header('Content-Type: application/json');
-        echo json_encode($data ?: null);
-    }
 }

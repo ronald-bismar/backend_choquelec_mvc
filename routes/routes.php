@@ -6,6 +6,7 @@ require_once "controller/ImagenController.php";
 require_once "controller/CoordenadaDMSController.php";
 require_once "controller/CoordenadasDMSController.php"; //Latitud y longitud
 require_once "controller/CoordenadaUTMController.php";
+require_once "controller/NotificacionController.php";
 
 $controlador = $_GET['c'] ?? 'Principal';
 $metodo = $_GET['m'] ?? 'inicio';

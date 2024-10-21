@@ -7,8 +7,9 @@ class Trabajador {
     public $contrasenia;
     public $tipoDeTrabajador;
     public $activo;
+    public $proyectoAsignado;
 
-    public function __construct($nombre = '', $apellido = '', $contrasenia = '', $tipoDeTrabajador = '', $cedulaDeIdentidad = '', $activo = true, $idTrabajador = null) {
+    public function __construct($nombre = '', $apellido = '', $contrasenia = '', $tipoDeTrabajador = '', $cedulaDeIdentidad = '', $activo = true, $idTrabajador = null, $proyectoAsignado = null) {
         $this->idTrabajador = $idTrabajador;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
@@ -16,6 +17,7 @@ class Trabajador {
         $this->contrasenia = $contrasenia;
         $this->tipoDeTrabajador = $tipoDeTrabajador;
         $this->activo = $activo;
+        $this->proyectoAsignado = $proyectoAsignado;
     }
 
     public function toArray() {
@@ -26,6 +28,7 @@ class Trabajador {
             'contrasenia' => $this->contrasenia,
             'tipoDeTrabajador' => $this->getTypeToNumber($this->tipoDeTrabajador),
             'activo' => $this->activo ? 1 : 0,
+            'proyectoAsignado' => $this->proyectoAsignado,
         ];
     
         // Condicionalmente agregar 'idTrabajador'
@@ -44,7 +47,8 @@ class Trabajador {
             $data['tipoDeTrabajador'],
             $data['cedulaDeIdentidad'],
             $data['activo'] == 1,
-            $data['idTrabajador']
+            $data['idTrabajador'],
+            $data['proyectoAsignado']
         );
     }
     function getTypeToNumber($tipo)

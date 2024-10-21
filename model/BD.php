@@ -6,15 +6,14 @@ class BD
 
     function __construct()
     {
-        // Usar MYSQLI_CLIENT_PERSISTENT para conexiÃ³n persistente
-
+        // Usar MYSQLI_CLIENT_PERSISTENT para conexi¨®n persistente
         $this->conexion = new mysqli('bpd8jelghf6igtd6gi28-mysql.services.clever-cloud.com', 'uc5kajgajjlmiubh', '95sQKgUZZK68X0LcjM9d', 'bpd8jelghf6igtd6gi28');
-
+        
         // $this->conexion = new mysqli('localhost', 'root', '', 'bpd8jelghf6igtd6gi28');
 
 
         if ($this->conexion->connect_error) {
-            die("ConexiÃ³n fallida: " . $this->conexion->connect_error);
+            die("Conexi¨®n fallida: " . $this->conexion->connect_error);
         }
     }
 
@@ -126,21 +125,5 @@ class BD
             echo "Registro exitoso";
         }
         return $respuesta;
-    }
-
-    public function ejecutarConsultaPersonalizada($consulta)
-    {
-        $respuesta = $this->conexion->query($consulta);
-
-        $datos = [];
-        if (!$respuesta) {
-            die("Error en la consulta: " . $this->conexion->error);
-        } else {
-            while ($fila = $respuesta->fetch_assoc()) {
-                $datos[] = $fila;
-            }
-        }
-
-        return $datos;
     }
 }
