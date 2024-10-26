@@ -56,9 +56,9 @@ class Trabajador {
         $level = '';
         if($tipo == 'ADMINISTRADOR')
         $level = 1;
-        else if($tipo == 'SUPERVISOR')
-        $level = 2;
         else if($tipo == 'RESIDENTE')
+        $level = 2;
+        else if($tipo == 'CAPATAZ')
         $level = 3;
         else
         $level = 4;
@@ -70,9 +70,9 @@ class Trabajador {
         if($level == 1)
         $level = 'ADMINISTRADOR';
         else if($level == 2)
-        $level = 'SUPERVISOR';
-        else if($level == 3)
         $level = 'RESIDENTE';
+        else if($level == 3)
+        $level = 'CAPATAZ';
         else
         $level = 'OPERARIO';
         return $type;
