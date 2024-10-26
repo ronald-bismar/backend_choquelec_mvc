@@ -52,9 +52,7 @@ class NotificacionController
     public function marcarComoAceptada()
     {
         $idNotificacion = $_POST['idNotificacion'] ?? '';
-        $idTrabajador = $_POST['idTrabajador'] ?? '';
-        $idProyecto = $_POST['idProyecto'] ?? '0';
-        return $this->notificacionModel->insertarConProcedimientoAlmacenado(valoresEntrada: [$idNotificacion, $idTrabajador, $idProyecto], nombreProcedimiento: "MarcarNotificacionComoAceptadaYAsignarProyecto")
+        return $this->notificacionModel->actualizar(['fueAceptada' => 1], "idNotificacion = '$idNotificacion'")
             ? "Notificación marcada como aceptada" 
             : "Error al marcar la notificación como aceptada.";
     }
