@@ -6,14 +6,16 @@ class BD
 
     function __construct()
     {
-        // Usar MYSQLI_CLIENT_PERSISTENT para conexi¨®n persistente
-        $this->conexion = new mysqli('bpd8jelghf6igtd6gi28-mysql.services.clever-cloud.com', 'uc5kajgajjlmiubh', '95sQKgUZZK68X0LcjM9d', 'bpd8jelghf6igtd6gi28');
+        
+        $this->conexion = new mysqli('94.23.161.188', 'nextmacrosystem_ronald_bismar', 'o?!Ao^NnrNwh', 'nextmacrosystem_choquelec_mvc');
+        // Usar MYSQLI_CLIENT_PERSISTENT para conexiè»Šn persistente
+        // $this->conexion = new mysqli('bpd8jelghf6igtd6gi28-mysql.services.clever-cloud.com', 'uc5kajgajjlmiubh', '95sQKgUZZK68X0LcjM9d', 'bpd8jelghf6igtd6gi28');
         
         // $this->conexion = new mysqli('localhost', 'root', '', 'bpd8jelghf6igtd6gi28');
 
 
         if ($this->conexion->connect_error) {
-            die("Conexi¨®n fallida: " . $this->conexion->connect_error);
+            die("Conexiè»Šn fallida: " . $this->conexion->connect_error);
         }
     }
 
